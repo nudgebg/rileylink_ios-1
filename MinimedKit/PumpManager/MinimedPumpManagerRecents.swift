@@ -24,6 +24,8 @@ struct MinimedPumpManagerRecents: Equatable {
 
     var lastAddedPumpEvents: Date = .distantPast
 
+    var lastBasalScheduleRead: Date = .distantPast
+
     var latestPumpStatus: PumpStatus? = nil
 
     var latestPumpStatusFromMySentry: MySentryPumpStatusMessageBody? = nil {
@@ -45,6 +47,7 @@ extension MinimedPumpManagerRecents: CustomDebugStringConvertible {
         bolusEngageState: \(bolusEngageState)
         tempBasalEngageState: \(tempBasalEngageState)
         lastAddedPumpEvents: \(lastAddedPumpEvents)
+        lastBasalScheduleRead: \(lastBasalScheduleRead)
         latestPumpStatus: \(String(describing: latestPumpStatus))
         latestPumpStatusFromMySentry: \(String(describing: latestPumpStatusFromMySentry))
         sensorState: \(String(describing: sensorState))
