@@ -599,6 +599,46 @@ extension MinimedPumpManager {
             }
         }
     }
+    
+    /// reads the  basal scehdeule form the pump and passes it to the loop manager
+    ///
+    /// - Parameters:
+    ///   - completion: A closure called once upon completion
+    ///   - error: An error describing why the fetch and/or store failed
+    private func fetchBasalSchedule(_ completion: @escaping (_ error: Error?) -> Void) {
+        rileyLinkDeviceProvider.getDevices { (devices) in
+            guard let device = devices.firstConnected else {
+                completion(PumpManagerError.connection(MinimedPumpManagerError.noRileyLink))
+                return
+            }
+
+            self.pumpOps.runSession(withName: "Fetch Basal Schedule", using: device) { (session) in
+                do {
+                    guard let basalRateSchedule = try session.getBasalRateSchedule(for: .standard)
+                    else {
+                        completion(PumpManagerError.deviceState(nil))
+                        return
+                    }
+
+                    self.pumpDelegate.notify({ (delegate) in
+                        guard let delegate = delegate else {
+                            preconditionFailure("pumpManagerDelegate cannot be nil")
+                        }
+
+                        delegate.pumpManager(self, hasNewBasalRateSchedule: basalRateSchedule, completion: { (error) in
+                            // Called on an unknown queue by the delegate
+                            if error == nil {
+                                self.recents.lastBasalScheduleRead = Date()
+                            }
+                            completion(error)
+                        })
+                    })
+                } catch let error {
+                    completion(PumpManagerError.communication(error as? LocalizedError))
+                }
+            }
+        }
+    }
 
     private func storePendingPumpEvents(_ completion: @escaping (_ error: Error?) -> Void) {
         // Must be called from the sessionQueue
@@ -891,6 +931,13 @@ extension MinimedPumpManager: PumpManager {
                         delegate?.pumpManager(self, didError: PumpManagerError.communication(error as? LocalizedError))
                     })
                     self.troubleshootPumpComms(using: device)
+                }
+            }
+        }
+        if self.recents.lastBasalScheduleRead.timeIntervalSinceNow < .minutes(-30) {
+            self.fetchBasalSchedule { (error) in
+                if let error = error {
+                    self.log.error("Post-basal BasalScheduleRead fetch failed: %{public}@", String(describing: error))
                 }
             }
         }
