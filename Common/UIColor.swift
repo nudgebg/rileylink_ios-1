@@ -22,9 +22,9 @@ extension UIColor {
 
     @nonobjc static let COBTintColor = UIColor.HIGYellowColor()
 
-    @nonobjc static let doseTintColor = UIColor.HIGGreenColor()
+    @nonobjc static let doseTintColor = UIColor.NudgeBlueColor() //UIColor.HIGGreenColor()
 
-    @nonobjc static let freshColor = UIColor.HIGGreenColor()
+    @nonobjc static let freshColor = UIColor.NudgeBlueColor() //UIColor.HIGGreenColor()
 
     @nonobjc static let agingColor = UIColor.HIGYellowColor()
 
@@ -59,6 +59,10 @@ extension UIColor {
 
     private static func HIGGreenColor() -> UIColor {
         return UIColor(red: 76 / 255, green: 217 / 255, blue: 100 / 255, alpha: 1)
+    }
+    
+    static func NudgeBlueColor() -> UIColor {
+        return UIColor(red: 22 / 255, green: 86 / 255, blue: 214 / 255, alpha: 1)
     }
 
     private static func HIGRedColor() -> UIColor {
